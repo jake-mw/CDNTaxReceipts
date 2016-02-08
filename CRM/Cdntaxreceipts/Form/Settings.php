@@ -58,6 +58,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $this->add('text', 'org_email', ts('Email', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->add('text', 'org_web', ts('Website', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->add('text', 'org_charitable_no', ts('Charitable Registration Number', array('domain' => 'org.civicrm.cdntaxreceipts')));
+      $this->add('text', 'org_location_issued', ts('Location Issued', array('domain' => 'org.civicrm.cdntaxreceipts')));
 
       $this->addRule('org_name', 'Enter Organization Name', 'required');
       $this->addRule('org_address_line1', 'Enter Address Line 1', 'required');
@@ -81,6 +82,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
         'receipt_watermark' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_watermark'),
         'receipt_pdftemplate' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_pdftemplate'),
         'org_charitable_no' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'org_charitable_no'),
+        'org_location_issued' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'org_location_issued'),
       );
       return $defaults;
     }
@@ -94,6 +96,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       CRM_Core_BAO_Setting::setItem($values['org_email'], self::SETTINGS, 'org_email');
       CRM_Core_BAO_Setting::setItem($values['org_web'], self::SETTINGS, 'org_web');
       CRM_Core_BAO_Setting::setItem($values['org_charitable_no'], self::SETTINGS, 'org_charitable_no');
+      CRM_Core_BAO_Setting::setItem($values['org_location_issued'], self::SETTINGS, 'org_location_issued');
     }
 
   }
