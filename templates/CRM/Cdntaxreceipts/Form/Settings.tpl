@@ -62,6 +62,11 @@
           <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Receipt numbers are formed by appending the CiviCRM Contribution ID to this prefix. Receipt numbers must be unique within your organization. If you also issue tax receipts using another system, you can use the prefix to ensure uniqueness (e.g. enter 'WEB-' here so all receipts issued through CiviCRM are WEB-00000001, WEB-00000002, etc.){/ts}</p></td>
       </tr>
       <tr>
+        <td class="label">{$form.receipt_serial.label}</td>
+        <td class="content">{$form.receipt_serial.html}
+          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}This is an experimental option to generate receipt numbers serially, without the gaps of the default method described above. Not recommended unless your auditor insists.{/ts}</p></td>
+      </tr>
+      <tr>
         <td class="label">{$form.receipt_authorized_signature_text.label}</td>
         <td class="content">{$form.receipt_authorized_signature_text.html}
           <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Name and position of the authorizing official to be displayed under the signature line. Defaults to "Authorized Signature" if no name is specified.{/ts}</p></td>

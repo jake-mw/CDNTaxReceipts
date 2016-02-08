@@ -104,6 +104,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
   function processReceiptOptions($mode) {
     if ( $mode == 'build' ) {
       $this->add('text', 'receipt_prefix', ts('Receipt Prefix', array('domain' => 'org.civicrm.cdntaxreceipts')));
+      $this->add('checkbox', 'receipt_serial', ts('Serial Receipt Numbers', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->add('text', 'receipt_authorized_signature_text', ts('Authorized Signature Text', array('domain' => 'org.civicrm.cdntaxreceipts')));
 
       $uploadSize = cdntaxreceipts_getCiviSetting('maxFileSize');
@@ -134,6 +135,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
     else if ( $mode == 'defaults' ) {
       $defaults = array(
         'receipt_prefix' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_prefix'),
+        'receipt_serial' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_serial'),
         'receipt_authorized_signature_text' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_authorized_signature_text'),
       );
       return $defaults;
@@ -141,6 +143,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
     else if ( $mode == 'post' ) {
       $values = $this->exportValues();
       CRM_Core_BAO_Setting::setItem($values['receipt_prefix'], self::SETTINGS, 'receipt_prefix');
+      CRM_Core_BAO_Setting::setItem('1', self::SETTINGS, 'receipt_serial');
       CRM_Core_BAO_Setting::setItem($values['receipt_authorized_signature_text'], self::SETTINGS, 'receipt_authorized_signature_text');
 
       $receipt_logo = $this->getSubmitValue('receipt_logo');
