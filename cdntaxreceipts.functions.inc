@@ -318,9 +318,14 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 6);
   $pdf->SetFont('Helvetica', 'B', 8);
   $pdf->Write(10, "Issue Date: " . $issued_on);
-  $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 12);
+  $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 10);
   $pdf->Write(10, "Received on: " . $display_date);
-  $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 18);
+  $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 14);
+  $location_issued = trim(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_location_issued'));
+  if ($location_issued) {
+    $pdf->Write(10, "Location receipt issued: " . $location_issued);
+    $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 18);
+  }    
   $pdf->Write(10, "Eligible Amount:  $" . number_format($amount, 2));
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 34);
 
