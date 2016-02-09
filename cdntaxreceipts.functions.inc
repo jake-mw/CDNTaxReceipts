@@ -50,6 +50,18 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
   // Get contact details
   list($displayname, $email) = CRM_Contact_BAO_Contact::getContactDetails($receipt['contact_id']);
 
+  $serial_receipt = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_serial');
+  if ($serial_receipt && empty($receipt['is_duplicate'])) {
+    // use my experimental alternative to generating serial receipt numbers, unless this is a re-issue
+    $lock = new CRM_Core_Lock('cdntaxreceipts.processTaxReceipt');
+    if (!$lock->acquire()) {
+      $userAlert = ts('Failed to acquire lock. No receipts were processed.');
+      CRM_Core_Session::setStatus($userAlert, ts('Warning'), 'alert');
+      return array(FALSE,'',NULL);
+    }
+    $next_id = cdntaxreceipts_log_next_id();
+    $receipt['receipt_no'] = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_prefix') . str_pad($next_id, 8, 0, STR_PAD_LEFT);
+  }
   // allow modules to alter any details
   // invoke hook_cdntaxreceipts_alter_receipt(&$receipt)
   //   modules should accept a reference to the $receipt array and alter it directly if they wish
@@ -134,6 +146,9 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
     if (!$receipt['is_duplicate'] && $sent) {
       cdntaxreceipts_log($receipt);
     }
+  }
+  if (!empty($lock)) {
+    $lock->release();
   }
 
   if ( isset($collectedPdf) ) {
@@ -640,6 +655,11 @@ function cdntaxreceipts_issueTaxReceipt($contribution, &$collectedPdf = NULL, $m
       return cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $receipt['contributions'],
         $method, $collectedPdf, $mode);
     }
+    // be sure I'm not changing the receipt number
+    $receipt_no = $receipt['receipt_no'];
+  }
+  else { // generate a receipt number
+    $receipt_no = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_prefix') . str_pad($contribution->id, 8, 0, STR_PAD_LEFT);
   }
 
   // determine the send method
@@ -654,9 +674,6 @@ function cdntaxreceipts_issueTaxReceipt($contribution, &$collectedPdf = NULL, $m
   if ($mode == CDNTAXRECEIPTS_MODE_WORKFLOW) {
     $method = 'email';
   }
-
-  // generate a receipt number
-  $receipt_no = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_prefix') . str_pad($contribution->id, 8, 0, STR_PAD_LEFT);
 
   // process In-Kind variables if this is a receipt for an in-kind contribution
 
