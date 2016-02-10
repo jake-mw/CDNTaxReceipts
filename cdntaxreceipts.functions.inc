@@ -96,6 +96,9 @@ function cdntaxreceipts_processTaxReceipt( $receipt, &$collectedPdf = NULL, $pre
     $mailparams['bcc'] = $email_archive;
   }
   else {
+    if ( empty($email_archive) ) {
+      $do_not_mail = 1;
+    }
     $mailparams['toEmail'] = $email_archive;
   }
 
@@ -103,7 +106,7 @@ function cdntaxreceipts_processTaxReceipt( $receipt, &$collectedPdf = NULL, $pre
     $ret = TRUE;
   }
   else {
-    $ret = CRM_Utils_Mail::send( $mailparams );
+    $ret = isset($do_not_mail) || CRM_Utils_Mail::send( $mailparams );
     if ( $ret == TRUE ) {
       // we have successfully processed.  Log the receipt.
       cdntaxreceipts_log($receipt);

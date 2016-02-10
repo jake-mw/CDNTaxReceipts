@@ -209,7 +209,6 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
 
       $this->addRule('email_subject', 'Enter email subject', 'required');
       $this->addRule('email_from', 'Enter email from address', 'required');
-      $this->addRule('email_archive', 'Enter email archive address', 'required');
       $this->addRule('email_message', 'Enter email message', 'required');
     }
     else if ( $mode == 'defaults' ) {
