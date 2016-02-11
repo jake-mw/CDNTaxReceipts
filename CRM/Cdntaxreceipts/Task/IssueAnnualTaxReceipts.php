@@ -121,9 +121,8 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
     }
 
     // Issue 1895204: Turn off geocoding to avoid hitting Google API limits
-    $config =& CRM_Core_Config::singleton();
-    $oldGeocode = $config->geocodeMethod;
-    unset($config->geocodeMethod);
+    $oldGeocode = cdntaxreceipts_getCiviSetting('geoProvider');
+    cdntaxreceipts_setCiviSetting('geoProvider', NULL);
 
     $params = $this->controller->exportValues($this->_name);
     $year = $params['receipt_year'];
@@ -195,7 +194,7 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
 
 
     // Issue 1895204: Reset geocoding
-    $config->geocodeMethod = $oldGeocode;
+    cdntaxreceipts_setCiviSetting('geoProvider', $oldGeocode);
 
     // 4. send the collected PDF for download
     // NB: This exits if a file is sent.

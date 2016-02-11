@@ -441,7 +441,11 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
     $sig_offset = strlen($signature) - 20;
     $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
 
-    $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_signature', NULL, $pdf_img_files_path . 'authorized-signature.png'), $mymargin_left + 137, $mymargin_top + 67, '', 15);
+    $sig_image = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_signature');
+    if (empty($sig_image)) {
+      $sig_image = $pdf_img_files_path . 'authorized-signature.png';
+    }
+    $pdf->Image(CRM_Core_BAO_Setting::getItem($sig_image), $mymargin_left + 137, $mymargin_top + 67, '', 15);
     $pdf->Line($mymargin_left + 136, $mymargin_top + 79, $mymargin_left + 186, $mymargin_top + 79);
     $pdf->SetXY($mymargin_left + 148 - $sig_offset, $mymargin_top + 76);
     $pdf->SetFont("Helvetica", "I", 7);
@@ -1138,6 +1142,34 @@ function cdntaxreceipts_getAddress($contact_id) {
   CRM_Core_BAO_Address::fixAddress($address);
 
   return $address;
+}
+
+/**
+ * Returns a setting of CiviCRM.
+ *
+ * @param string $key the setting to retrieve.
+ * @return string the value of the $key setting.
+ */
+function cdntaxreceipts_getCiviSetting($key) {
+  $result = civicrm_api3('Setting', 'get', array(
+    'sequential' => 1,
+    'return' => array($key),
+  ));
+  $settings = CRM_Utils_Array::first($result['values']);
+  return isset($settings[$key]) ? $settings[$key] : NULL;
+}
+
+/**
+ * Sets the value of a CiviCRM setting.
+ *
+ * @param string $key the setting to set.
+ * @paramm string $value the value for the setting.
+ */
+function cdntaxreceipts_setCiviSetting($key, $value) {
+  civicrm_api3('Setting', 'create', array(
+    'sequential' => 1,
+    $key => $value,
+  ));
 }
 
 /**

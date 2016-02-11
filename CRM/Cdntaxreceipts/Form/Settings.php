@@ -103,13 +103,11 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $this->add('text', 'receipt_prefix', ts('Receipt Prefix', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->add('text', 'receipt_authorized_signature_text', ts('Authorized Signature Text', array('domain' => 'org.civicrm.cdntaxreceipts')));
 
-      $config = CRM_Core_Config::singleton( );
-      if ($config->maxImportFileSize >= 8388608 ) {
-        $uploadFileSize = 8388608;
-      } else {
-        $uploadFileSize = $config->maxImportFileSize;
+      $uploadSize = cdntaxreceipts_getCiviSetting('maxFileSize');
+      if ($uploadSize >= 8 ) {
+        $uploadSize = 8;
       }
-      $uploadSize = round(($uploadFileSize / (1024*1024)), 2);
+      $uploadFileSize = $uploadSize * 1024 * 1024;
 
       $this->assign('uploadSize', $uploadSize );
       $this->setMaxFileSize( $uploadFileSize );
