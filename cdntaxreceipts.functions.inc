@@ -49,6 +49,7 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
 
   // Get contact details
   list($displayname, $email) = CRM_Contact_BAO_Contact::getContactDetails($receipt['contact_id']);
+  $displayname = cdntaxreceipts_getDonorName($receipt['contact_id']);
 
   $serial_receipt = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_serial');
   if ($serial_receipt && empty($receipt['is_duplicate'])) {
@@ -187,6 +188,7 @@ function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL
   $address_line_3 = isset($address['country']) ? $address['country'] : '';
 
   list($displayname, $email) = CRM_Contact_BAO_Contact::getContactDetails($receipt['contact_id']);
+  $displayname = cdntaxreceipts_getDonorName($receipt['contact_id']);
   if ( $receipt['issue_type'] == 'single' ) {
     $pos = strpos($receipt['receive_date'], '-');
     if ($pos === FALSE) {
@@ -1289,3 +1291,21 @@ function _cdntaxreceipts_get_display_type($issue_type) {
   }
 }
 
+/*
+ * function getDonorName
+ *
+ * CRA Requires that we use First Name Middle Initial Last Name
+ */
+
+function cdntaxreceipts_getDonorName($contact_id) {
+  $c = civicrm_api3('Contact', 'getsingle', array(
+    'return' => 'first_name,middle_name,last_name',
+    'id' => $contact_id
+  ));
+  $name = array($c['first_name']);
+  if (!empty($c['middle_name'])) {
+    $name[] = substr($c['middle_name'],0,1);
+  }
+  $name[] = $c['last_name'];
+  return implode(' ',$name);
+}
