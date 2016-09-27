@@ -503,7 +503,7 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
     $pdf->Write(10, $line_1, '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
     $pdf->SetFont('Helvetica', '', 8);
     $pdf->SetY($mymargin_top + 76, 0, 'L', TRUE, 0, FALSE, FALSE, 0);
-    $pdf->Write(10, ts('Canadian Revenue Agency: www.cra-arc.gc.ca/charities', array('domain' => 'org.civicrm.cdntaxreceipts')));
+    $pdf->Write(10, ts('Canada Revenue Agency: www.cra-arc.gc.ca/charities', array('domain' => 'org.civicrm.cdntaxreceipts')));
 
     // Bottom center section
     $pdf->SetFont('Helvetica', 'B', 8);
