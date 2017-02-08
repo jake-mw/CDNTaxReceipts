@@ -1166,9 +1166,8 @@ function _cdntaxreceipts_get_type_for_contribution($contribution) {
 function _cdntaxreceipts_get_contribution_dao() {
   // Require once lines are only needed if the civicrm.settings.php does not have the autoloader line
   require_once 'CRM/Utils/VersionCheck.php';
-  $version_checker = CRM_Utils_VersionCheck::singleton();
-  $majorVersion = floatval(substr($version_checker->localVersion, 0, 3));
-  if ($majorVersion >= 4.3) {
+  $majorVersion = CRM_Utils_System::version();
+  if (version_compare('4.3alpha1', $majorVersion) < 1) {
     require_once 'CRM/Financial/DAO/FinancialType.php';
     $contributionType = new CRM_Financial_DAO_FinancialType();
   }
