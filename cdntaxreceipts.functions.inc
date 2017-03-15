@@ -845,17 +845,27 @@ function cdntaxreceipts_eligibleAmount( $contributionId ) {
     }
   }
   else {
-    // compute by line item in 4.5+
+    // compute by line item in 4.5+ if there are line items
+    // (if the contribution was done pre-upgrade, it might not have line items)
     $line_item = new CRM_Price_DAO_LineItem();
     $line_item->contribution_id = $contributionId;
-    $line_item->find();
+    $count = $line_item->find();
 
-    while ( $line_item->fetch() ) {
-      $financialType =  _cdntaxreceipts_get_type_for_line_item($line_item);
-      if ( $financialType->is_deductible ) {
-        $deductibleAmount += $line_item->line_total;
+    if ($count > 0) {
+      while ( $line_item->fetch() ) {
+        $financialType =  _cdntaxreceipts_get_type_for_line_item($line_item);
+        if ( $financialType->is_deductible ) {
+          $deductibleAmount += $line_item->line_total;
+        }
       }
     }
+    else {
+      // compute for overall contribution
+      $financialType =  _cdntaxreceipts_get_type_for_contribution($contribution);
+      if ( $financialType->is_deductible ) {
+        $deductibleAmount = $contribution->total_amount;
+      }
+    } 
   }
 
   // account for manually-entered non_deductible_amount
