@@ -281,7 +281,7 @@ function cdntaxreceipts_civicrm_validate( $formName, &$fields, &$files, &$form )
 }
 
 function cdntaxreceipts_civicrm_alterMailParams(&$params, $context) {
-
+  
   $msg_template_types = array('contribution_online_receipt', 'contribution_offline_receipt');
 
   if (isset($params['groupName'])
@@ -321,17 +321,15 @@ function cdntaxreceipts_civicrm_alterMailParams(&$params, $context) {
       CDNTAXRECEIPTS_MODE_WORKFLOW
     );
 
-    if ($ret) {
-      $last_in_path = strrpos($pdf_file, '/');
-      $clean_name = substr($pdf_file, $last_in_path);
-      $attachment = array(
-        'fullPath' => $pdf_file,
-        'mime_type' => 'application/pdf',
-        'cleanName' => $clean_name,
-      );
-      $params['attachments'] = array($attachment);
-    }
-
+    // No need to check if $ret is true (i.e. email sent), b/c it's not emailed out when using CDNTAXRECEIPTS_MODE_WORKFLOW and archive email is optional
+    $last_in_path = strrpos($pdf_file, '/');
+    $clean_name = substr($pdf_file, $last_in_path);
+    $attachment = array(
+      'fullPath' => $pdf_file,
+      'mime_type' => 'application/pdf',
+      'cleanName' => $clean_name,
+    );
+    $params['attachments'] = array($attachment);
   }
 
 }

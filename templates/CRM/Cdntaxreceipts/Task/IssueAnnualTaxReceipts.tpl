@@ -27,7 +27,7 @@
   were recorded after the annual receipt was issued, those contributions must be receipted one at a time. Use the Find
   Contributions action to issue those receipts.{/ts}</p>
   <p>{ts domain='org.civicrm.cdntaxreceipts'}<strong>This action cannot be undone.</strong> Tax receipts will be logged for auditing purposes,
-    and a copy of each receipt will be submitted to the tax receipt archive.{/ts}</p>
+    and a copy of each receipt will be submitted to the tax receipt archive if an archive email address was provided in the extension setting.{/ts}</p>
   <p>
   <ul>
   <li>{ts domain='org.civicrm.cdntaxreceipts'}Email receipts will be emailed directly to the contributor.{/ts}</li>

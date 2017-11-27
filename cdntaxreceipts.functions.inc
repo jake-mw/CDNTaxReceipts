@@ -39,7 +39,7 @@ require_once('FPDI/fpdi.php');
  * processTaxReceipt()
  * Accepts an associative array containing receipt variables, and:
  * - generates a PDF file using the provided variables
- * - sends a copy of the receipt to the email archive
+ * - sends a copy of the receipt to the email archive if present
  * - emails the receipt to the donor if issue_method='email'
  * - logs the receipt to the audit log
  *
@@ -60,7 +60,7 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
   // generate the PDF file
   list($pdf_file, $user_friendly) = cdntaxreceipts_generateFormattedReceipt($receipt, $collectedPdf, $mode);
 
-  // generate an email to the tax archive and possibly to the donor
+  // generate an email to the tax archive if present and possibly to the donor
   if ( $mode == CDNTAXRECEIPTS_MODE_PREVIEW ) {
     $sent = TRUE;
   }
@@ -112,12 +112,17 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
       $sendTemplateParams['valueName'] = 'cdntaxreceipts_receipt_aggregate';
     }
 
-    // send a copy (without open tracking) to the tax archive
-    $sendTemplateParams['toEmail'] = $email_archive;
-    list($sent, $subject, $message, $html) = CRM_Core_BAO_MessageTemplate::sendTemplate($sendTemplateParams);
+    // Flag indicating whether tax receipt email was sent successfully
+    $sent = false;
+
+    // send a copy (without open tracking) to the tax archive if present
+    if( !empty($email_archive) ){
+      $sendTemplateParams['toEmail'] = $email_archive;
+      list($sent, $subject, $message, $html) = CRM_Core_BAO_MessageTemplate::sendTemplate($sendTemplateParams);
+    }
 
     // send a copy (with open tracking) to the donor (sometimes)
-    if ($sent && $receipt['issue_method'] == 'email' && $mode != CDNTAXRECEIPTS_MODE_WORKFLOW) {
+    if ( (empty($email_archive) || $sent) && $receipt['issue_method'] == 'email' && $mode != CDNTAXRECEIPTS_MODE_WORKFLOW) {
       $sendTemplateParams['toEmail'] = $contact['email'];
       $sendTemplateParams['tplParams']['openTracking'] = "<img src=\"" . CRM_Utils_System::baseURL() .
         "civicrm/cdntaxreceipts/open?r={$receipt['email_tracking_id']}\" width='1' height='1' alt='' border='0'>";
@@ -126,8 +131,10 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
       // TODO: log an activity
     }
 
-    // log the receipt
-    if (!$receipt['is_duplicate'] && $sent) {
+    // log the receipt when:
+    // - tax receipt is emailed to either archive or the donor; OR
+    // - this function is called in cdntaxreceipts_civicrm_alterMailParams() to generate PDF tax receipt
+    if (!$receipt['is_duplicate'] && ($sent || $mode == CDNTAXRECEIPTS_MODE_WORKFLOW) ) {
       cdntaxreceipts_log($receipt);
     }
   }

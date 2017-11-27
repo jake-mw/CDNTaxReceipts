@@ -270,7 +270,13 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
       CRM_Utils_System::civiExit();
     }
     else {
-      $statusMsg = ts('File has expired. Please retrieve receipt from the email archive.', array('domain' => 'org.civicrm.cdntaxreceipts'));
+      $email_archive = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_archive');
+      if( !empty($email_archive) ){
+        $statusMsg = ts('File has expired. Please retrieve receipt from the email archive.', array('domain' => 'org.civicrm.cdntaxreceipts'));
+      }
+      else{
+        $statusMsg = ts('File has expired. Please reissue the tax reciept.', array('domain' => 'org.civicrm.cdntaxreceipts'));
+      }
       CRM_Core_Session::setStatus( $statusMsg, '', 'error' );
     }
   }

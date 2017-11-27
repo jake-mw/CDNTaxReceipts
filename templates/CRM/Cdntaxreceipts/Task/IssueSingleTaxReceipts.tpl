@@ -28,7 +28,7 @@
      {$form.receipt_option.include_duplicates.html}</p>
   <p>{ts domain='org.civicrm.cdntaxreceipts'}Clicking 'Issue Tax Receipts' will issue the selected tax receipts.
     <strong>This action cannot be undone.</strong> Tax receipts will be logged for auditing purposes,
-    and a copy of each receipt will be submitted to the tax receipt archive.{/ts}</p>
+    and a copy of each receipt will be submitted to the tax receipt archive if an archive email address was provided in the extension setting.{/ts}</p>
   <ul>
   <li>{ts domain='org.civicrm.cdntaxreceipts'}Email receipts will be emailed directly to the contributor.{/ts}</li>
   <li>{ts domain='org.civicrm.cdntaxreceipts'}Print receipts will be compiled into a file for download.  Please print and mail any receipts in this file.{/ts}</li>

@@ -212,7 +212,6 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $this->add('text', 'email_archive', ts('Archive Email', array('domain' => 'org.civicrm.cdntaxreceipts')));
 
       $this->addRule('email_from', 'Enter email from address', 'required');
-      $this->addRule('email_archive', 'Enter email archive address', 'required');
     }
     else if ( $mode == 'defaults' ) {
       $defaults = array(

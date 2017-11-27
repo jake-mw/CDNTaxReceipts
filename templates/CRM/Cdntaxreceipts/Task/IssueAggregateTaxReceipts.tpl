@@ -39,7 +39,7 @@
   <p>{ts domain='org.civicrm.cdntaxreceipts'}Clicking 'Issue Tax Receipts' will issue aggregate tax receipts grouped into the selected year(s). These tax receipts are a sum
     total of all selected eligible contributions, received from the donor during the selected year, that have not already been receipted individually.{/ts}</p>
   <p>{ts domain='org.civicrm.cdntaxreceipts'}<strong>This action cannot be undone.</strong> Tax receipts will be logged for auditing purposes,
-    and a copy of each receipt will be submitted to the tax receipt archive.{/ts}
+    and a copy of each receipt will be submitted to the tax receipt archive if an archive email address was provided in the extension setting.{/ts}
   <ul>
     <li>{ts domain='org.civicrm.cdntaxreceipts'}Email receipts will be emailed directly to the contributor.{/ts}</li>
     <li>{ts domain='org.civicrm.cdntaxreceipts'}Print receipts will be compiled into a file for download.  Please print and mail any receipts in this file.{/ts}</li>
