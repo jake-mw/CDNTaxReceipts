@@ -1309,13 +1309,19 @@ function _cdntaxreceipts_get_display_type($issue_type) {
 
 function cdntaxreceipts_getDonorName($contact_id) {
   $c = civicrm_api3('Contact', 'getsingle', array(
-    'return' => 'first_name,middle_name,last_name',
+    'return' => 'first_name,middle_name,last_name,organization_name,contact_type',
     'id' => $contact_id
   ));
-  $name = array($c['first_name']);
-  if (!empty($c['middle_name'])) {
-    $name[] = substr($c['middle_name'],0,1);
+  if ($c['contact_type'] == 'Organization') {
+    $name = array($c['organization_name']);
+    return implode(' ',$name);
   }
-  $name[] = $c['last_name'];
-  return implode(' ',$name);
+  else { 
+    $name = array($c['first_name']);
+    if (!empty($c['middle_name'])) {
+      $name[] = substr($c['middle_name'],0,1);
+    }
+    $name[] = $c['last_name'];
+    return implode(' ',$name);
+  }
 }
