@@ -68,7 +68,7 @@ AND COLUMN_NAME = 'receipt_status'");
     CRM_Core_DAO::executeQuery('ALTER TABLE cdntaxreceipts_log ADD email_opened datetime NULL');
     CRM_Core_DAO::executeQuery('CREATE INDEX contribution_id ON cdntaxreceipts_log_contributions (contribution_id)');
     return TRUE;
-  } 
+  }
 
   public function upgrade_1322() {
     $this->ctx->log->info('Applying update 1322: Message Templates');
@@ -179,15 +179,14 @@ AND COLUMN_NAME = 'receipt_status'");
   }
 
   /**
-   * Example: Run an external SQL script
+   * Run an external SQL script
    *
    * @return TRUE on success
    * @throws Exception
-  public function upgrade_4201() {
-    $this->ctx->log->info('Applying update 4201');
-    // this path is relative to the extension base dir
-    $this->executeSqlFile('sql/upgrade_4201.sql');
-    return TRUE;
-  } // */
+   */
+   public function upgrade_1323() {
+     $this->executeSqlFile('sql/upgrade_1323.sql');
+     return TRUE;
+   }
 
 }
