@@ -7,13 +7,13 @@ require_once('CRM/Utils/Array.php');
 
 class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
 
-  protected $_useEligibilityHooks = FALSE;
+  protected $_useEligibilityHooks = false;
   CONST SETTINGS = 'CDNTaxReceipts';
 
   function __construct() {
 
     $this->_customGroupExtends = array('Contact', 'Individual', 'Organization');
-    $this->_autoIncludeIndexedFieldsAsOrderBys = TRUE;
+    $this->_autoIncludeIndexedFieldsAsOrderBys = true;
 
     $this->_columns = array(
       'civicrm_contact' =>
@@ -23,12 +23,12 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
         array(
           'sort_name' =>
           array('title' => ts('Contact Name', array('domain' => 'org.civicrm.cdntaxreceipts')),
-            'required' => TRUE,
+            'required' => true,
           ),
           'id' =>
           array(
-            'no_display' => TRUE,
-            'required' => TRUE,
+            'no_display' => true,
+            'required' => true,
           ),
         ),
         'grouping' => 'tax-fields',
@@ -45,7 +45,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
         'dao' => 'CRM_Financial_DAO_FinancialType',
         'fields' =>
         array(
-          'financial_type' => array('default' => TRUE),
+          'financial_type' => array('default' => true),
         ),
         'grouping' => 'tax-fields',
       ),
@@ -54,10 +54,10 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
         'dao' => 'CRM_Contribute_DAO_Contribution',
         'fields' =>
         array(
-          'receive_date' => array('default' => TRUE),
-          'total_amount' => array('default' => TRUE),
-          'contribution_source' => array('default' => TRUE),
-          'id' => array('title' => 'Contribution ID', 'default' => TRUE),
+          'receive_date' => array('default' => true),
+          'total_amount' => array('default' => true),
+          'contribution_source' => array('default' => true),
+          'id' => array('title' => 'Contribution ID', 'default' => true),
         ),
         'filters' =>
         array(
@@ -74,7 +74,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
         'grouping' => 'tax-fields',
         'order_bys' =>
         array(
-          'total_amount' => NULL,
+          'total_amount' => null,
           'receive_date' =>
           array(
             'default' => '1', 'default_weight' => '0', 'default_order' => 'DESC',
@@ -83,10 +83,10 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
       ),
     );
 
-    if (CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'enable_advanced_eligibility_report', NULL, 0) == 1) {
+    if (CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'enable_advanced_eligibility_report', null, 0) == 1) {
       $enable_options = array( 1 => ts('Yes'), 0 => ts('No'));
     }
-    elseif (CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'enable_advanced_eligibility_report', NULL, 0) == 0) {
+    elseif (CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'enable_advanced_eligibility_report', null, 0) == 0) {
       $enable_options = array( 0 => ts('No'), 1 => ts('Yes'));
     }
     $this->_options =
@@ -140,7 +140,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
     return $errors;
   }
 
-  function from($includeTemp = TRUE) {
+  function from($includeTemp = true) {
 
     $this->_from = "
         FROM civicrm_contact {$this->_aliases['civicrm_contact']}
@@ -159,7 +159,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
     }
   }
 
-  function where($includeTemp = TRUE) {
+  function where($includeTemp = true) {
 
     parent::where();
     $this->_where .= "
@@ -188,7 +188,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
     if (array_key_exists('use_advanced_eligibility', $this->_params)) {
       if ($this->_params['use_advanced_eligibility'] == 1) {
         $select[] = " '' as blankColumnBegin";
-        $this->_useEligibilityHooks = TRUE;
+        $this->_useEligibilityHooks = true;
       }
     }
     // set up the temporary tables to do eligibility calculations
@@ -196,7 +196,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
       $this->createTempEligibilityTable();
     }
 
-    $sql = $this->buildQuery(TRUE);
+    $sql = $this->buildQuery(true);
 
     $rows = $graphRows = array();
     $this->buildRows($sql, $rows);
@@ -214,11 +214,11 @@ CREATE TEMPORARY TABLE cdntaxreceipts_temp_civireport_eligible (
 ) ENGINE=HEAP DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci";
     CRM_Core_DAO::executeQuery($sql);
 
-    $this->from(FALSE);
-    $this->where(FALSE);
+    $this->from(false);
+    $this->where(false);
 
     // if no receive_date filter, then limit to beginning of current month to prevent lock-up on large data sets
-    if (strpos($this->_where, 'receive_date') === FALSE) {
+    if (strpos($this->_where, 'receive_date') === false) {
       $month = date("Ym", time()) . '01';
       $this->_where .= " AND {$this->_aliases['civicrm_contribution']}.receive_date >= {$month} ";
       CRM_Core_Session::setStatus(ts('For performance reasons, date range is limited to the current month. If you want to a different date range, please use the date filter.'), '', 'info');
@@ -239,7 +239,7 @@ CREATE TEMPORARY TABLE cdntaxreceipts_temp_civireport_eligible (
 
   function alterDisplay(&$rows) {
     // custom code to alter rows
-    $entryFound = FALSE;
+    $entryFound = false;
     foreach ($rows as $rowNum => $row) {
 
       // change contact name with link
@@ -252,7 +252,7 @@ CREATE TEMPORARY TABLE cdntaxreceipts_temp_civireport_eligible (
                );
         $rows[$rowNum]['civicrm_contact_sort_name_link'] = $url;
         $rows[$rowNum]['civicrm_contact_sort_name_hover'] = ts("View Contact Summary for this Contact");
-        $entryFound = TRUE;
+        $entryFound = true;
       }
 
       if (array_key_exists('civicrm_contribution_id', $row)) {
@@ -262,7 +262,7 @@ CREATE TEMPORARY TABLE cdntaxreceipts_temp_civireport_eligible (
                );
         $rows[$rowNum]['civicrm_contribution_id_link'] = $url;
         $rows[$rowNum]['civicrm_contribution_id_hover'] = ts("View Details of this Contribution");
-        $entryFound = TRUE;
+        $entryFound = true;
       }
 
       // skip looking further in rows, if first row itself doesn't

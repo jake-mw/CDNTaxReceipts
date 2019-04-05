@@ -5,12 +5,12 @@ require_once('CRM/Utils/Type.php');
 
 class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
 
-  protected $_where = NULL;
+  protected $_where = null;
 
   function __construct() {
 
     $this->_customGroupExtends = array('Contact', 'Individual', 'Organization');
-    $this->_autoIncludeIndexedFieldsAsOrderBys = TRUE;
+    $this->_autoIncludeIndexedFieldsAsOrderBys = true;
 
     $this->_columns = array(
       'civicrm_contact' =>
@@ -20,12 +20,12 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
         array(
           'sort_name' =>
           array('title' => ts('Contact Name', array('domain' => 'org.civicrm.cdntaxreceipts')),
-            'required' => TRUE,
+            'required' => true,
           ),
           'id' =>
           array(
-            'no_display' => TRUE,
-            'required' => TRUE,
+            'no_display' => true,
+            'required' => true,
           ),
         ),
         'grouping' => 'tax-fields',
@@ -42,14 +42,14 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
         'dao' => 'CRM_Contribute_DAO_Contribution',
         'fields' =>
         array(
-          'issued_on' => array('title' => 'Issued On', 'default' => TRUE,'type' => CRM_Utils_Type::T_TIMESTAMP,),
-          'receipt_amount' => array('title' => 'Receipt Amount', 'default' => TRUE, 'type' => CRM_Utils_Type::T_MONEY,),
-          'receipt_no' => array('title' => 'Receipt No.', 'default' => TRUE),
-          'issue_type' => array('title' => 'Issue Type', 'default' => TRUE),
-          'issue_method' => array('title' => 'Issue Method', 'default' => TRUE),
-          'uid' => array('title' => 'Issued By', 'default' => TRUE),
-          'receipt_status' => array('title' => 'Receipt Status', 'default' => TRUE,),
-          'email_opened' => array('title' => 'Email Open Date', 'type' => CRM_Utils_Type::T_TIMESTAMP, 'default' => TRUE),
+          'issued_on' => array('title' => 'Issued On', 'default' => true,'type' => CRM_Utils_Type::T_TIMESTAMP,),
+          'receipt_amount' => array('title' => 'Receipt Amount', 'default' => true, 'type' => CRM_Utils_Type::T_MONEY,),
+          'receipt_no' => array('title' => 'Receipt No.', 'default' => true),
+          'issue_type' => array('title' => 'Issue Type', 'default' => true),
+          'issue_method' => array('title' => 'Issue Method', 'default' => true),
+          'uid' => array('title' => 'Issued By', 'default' => true),
+          'receipt_status' => array('title' => 'Receipt Status', 'default' => true,),
+          'email_opened' => array('title' => 'Email Open Date', 'type' => CRM_Utils_Type::T_TIMESTAMP, 'default' => true),
         ),
         'grouping' => 'tax-fields',
         'filters' =>
@@ -112,7 +112,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
         'fields' =>
         array(
           'contribution_id' => array(
-            'default' => TRUE,
+            'default' => true,
             'dbAlias' => "GROUP_CONCAT(DISTINCT cdntaxreceipts_log_contributions_civireport.contribution_id ORDER BY cdntaxreceipts_log_contributions_civireport.contribution_id SEPARATOR ', ')", ),
         ),
         'grouping' => 'tax-fields',
@@ -174,7 +174,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
     foreach ($this->_columns as $tableName => $table) {
       if (array_key_exists('filters', $table)) {
         foreach ($table['filters'] as $fieldName => $field) {
-          $clause = NULL;
+          $clause = null;
           if (CRM_Utils_Array::value('type', $field) & (CRM_Utils_Type::T_DATE | CRM_Utils_Type::T_TIMESTAMP)) {
             if (CRM_Utils_Array::value('operatorType', $field) == CRM_Report_Form::OP_MONTH) {
               $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);
@@ -236,7 +236,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
   }
 
   function dateClause($fieldName,
-                      $relative, $from, $to, $type = NULL, $fromTime = NULL, $toTime = NULL
+                      $relative, $from, $to, $type = null, $fromTime = null, $toTime = null
   ) {
     $clauses = array();
     if (in_array($relative, array_keys(self::getOperationPair(CRM_Report_FORM::OP_DATE)))) {
@@ -269,7 +269,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
       return implode(' AND ', $clauses);
     }
 
-    return NULL;
+    return null;
   }
 
 
@@ -282,7 +282,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
 
     $this->beginPostProcess();
 
-    $sql = $this->buildQuery(TRUE);
+    $sql = $this->buildQuery(true);
 
     $rows = $graphRows = array();
     $this->buildRows($sql, $rows);
@@ -294,7 +294,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
 
   function alterDisplay(&$rows) {
     // custom code to alter rows
-    $entryFound = FALSE;
+    $entryFound = false;
     foreach ($rows as $rowNum => $row) {
 
       // change contact name with link
@@ -308,7 +308,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
                );
         $rows[$rowNum]['civicrm_contact_sort_name_link'] = $url;
         $rows[$rowNum]['civicrm_contact_sort_name_hover'] = ts("View Contact Summary for this Contact");
-        $entryFound = TRUE;
+        $entryFound = true;
       }
 
       if (array_key_exists('civicrm_cdntaxreceipts_log_issue_type', $row)) {
@@ -321,7 +321,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
         elseif ($rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] == 'aggregate' ) {
           $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] = ts('Aggregate', array('domain' => 'org.civicrm.cdntaxreceipts'));
         }
-        $entryFound = TRUE;
+        $entryFound = true;
       }
 
       if (array_key_exists('civicrm_cdntaxreceipts_log_issue_method', $row)) {
@@ -331,7 +331,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
         elseif ($rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] == 'email' ) {
           $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] = ts('Email', array('domain' => 'org.civicrm.cdntaxreceipts'));
         }
-        $entryFound = TRUE;
+        $entryFound = true;
       }
 
       if (array_key_exists('civicrm_cdntaxreceipts_log_receipt_status', $row)) {
@@ -341,19 +341,19 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
         elseif ($rows[$rowNum]['civicrm_cdntaxreceipts_log_receipt_status'] == 'cancelled' ) {
           $rows[$rowNum]['civicrm_cdntaxreceipts_log_receipt_status'] = ts('Cancelled', array('domain' => 'org.civicrm.cdntaxreceipts'));
         }
-        $entryFound = TRUE;
+        $entryFound = true;
       }
 
       if (array_key_exists('civicrm_cdntaxreceipts_log_issued_on', $row)) {
         $rows[$rowNum]['civicrm_cdntaxreceipts_log_issued_on'] = date('Y-m-d', $rows[$rowNum]['civicrm_cdntaxreceipts_log_issued_on']);
-        $entryFound = TRUE;
+        $entryFound = true;
       }
 
       if (array_key_exists('civicrm_cdntaxreceipts_log_uid', $row)) {
         $issued_by = CRM_Core_BAO_UFMatch::getUFValues($rows[$rowNum]['civicrm_cdntaxreceipts_log_uid']);
         if( $issued_by ) {
           $rows[$rowNum]['civicrm_cdntaxreceipts_log_uid'] = $issued_by['uf_name'];
-          $entryFound = TRUE;
+          $entryFound = true;
         }
       }
 

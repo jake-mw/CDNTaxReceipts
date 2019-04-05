@@ -65,12 +65,12 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Contribute_Form
     $this->assign('duplicateTotal', $duplicateTotal);
     $this->assign('receiptTotal', $receiptTotal);
 
-    $delivery_method = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'delivery_method', NULL, CDNTAX_DELIVERY_PRINT_ONLY);
+    $delivery_method = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'delivery_method', null, CDNTAX_DELIVERY_PRINT_ONLY);
     $this->assign('deliveryMethod', $delivery_method);
 
     // add radio buttons
-    $this->addElement('radio', 'receipt_option', NULL, ts('Issue tax receipts for the %1 unreceipted contributions only.', array(1=>$originalTotal, 'domain' => 'org.civicrm.cdntaxreceipts')), 'original_only');
-    $this->addElement('radio', 'receipt_option', NULL, ts('Issue tax receipts for all %1 contributions. Previously-receipted contributions will be marked \'duplicate\'.', array(1=>$receiptTotal, 'domain' => 'org.civicrm.cdntaxreceipts')), 'include_duplicates');
+    $this->addElement('radio', 'receipt_option', null, ts('Issue tax receipts for the %1 unreceipted contributions only.', array(1=>$originalTotal, 'domain' => 'org.civicrm.cdntaxreceipts')), 'original_only');
+    $this->addElement('radio', 'receipt_option', null, ts('Issue tax receipts for all %1 contributions. Previously-receipted contributions will be marked \'duplicate\'.', array(1=>$receiptTotal, 'domain' => 'org.civicrm.cdntaxreceipts')), 'include_duplicates');
     $this->addRule('receipt_option', ts('Selection required', array('domain' => 'org.civicrm.cdntaxreceipts')), 'required');
 
     if ($delivery_method != CDNTAX_DELIVERY_DATA_ONLY) {
@@ -85,7 +85,7 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Contribute_Form
       array(
         'type' => 'next',
         'name' => 'Issue Tax Receipts',
-        'isDefault' => TRUE,
+        'isDefault' => true,
         'js' => array('onclick' => "return submitOnce(this,'{$this->_name}','" . ts('Processing', array('domain' => 'org.civicrm.cdntaxreceipts')) . "');"),
       ),
     );
@@ -114,14 +114,14 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Contribute_Form
 
     $params = $this->controller->exportValues($this->_name);
 
-    $originalOnly = FALSE;
+    $originalOnly = false;
     if ($params['receipt_option'] == 'original_only') {
-      $originalOnly = TRUE;
+      $originalOnly = true;
     }
 
-    $previewMode = FALSE;
+    $previewMode = false;
     if (isset($params['is_preview']) && $params['is_preview'] == 1 ) {
-      $previewMode = TRUE;
+      $previewMode = true;
     }
 
     /**
@@ -151,7 +151,7 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Contribute_Form
       // 1. Load Contribution information
       $contribution = new CRM_Contribute_DAO_Contribution();
       $contribution->id = $contributionId;
-      if ( ! $contribution->find( TRUE ) ) {
+      if ( ! $contribution->find( true ) ) {
         CRM_Core_Error::fatal( "CDNTaxReceipts: Could not find corresponding contribution id." );
       }
 

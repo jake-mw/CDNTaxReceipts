@@ -32,7 +32,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       array(
         'type' => 'submit',
         'name' => ts('Submit', array('domain' => 'org.civicrm.cdntaxreceipts')),
-        'isDefault' => TRUE,
+        'isDefault' => true,
       ),
     ));
     // Set image defaults
@@ -41,7 +41,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       if (CRM_Utils_Array::value($image, $defaults)) {
         $this->assign($image, $defaults[$image]);
         if (!file_exists($defaults[$image])) {
-          $this->assign($image.'_class', TRUE);
+          $this->assign($image.'_class', true);
         }
       }
     }
@@ -170,29 +170,29 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $this->addElement('checkbox', 'issue_inkind', ts('Setup in-kind receipts?', array('domain' => 'org.civicrm.cdntaxreceipts')));
 
       $delivery_options = array();
-      $delivery_options[] = $this->createElement('radio', NULL, NULL, 'Print only', CDNTAX_DELIVERY_PRINT_ONLY);
-      $delivery_options[] = $this->createElement('radio', NULL, NULL, 'Email or print', CDNTAX_DELIVERY_PRINT_EMAIL);
-      $delivery_options[] = $this->createElement('radio', NULL, NULL, 'Data only', CDNTAX_DELIVERY_DATA_ONLY);
+      $delivery_options[] = $this->createElement('radio', null, null, 'Print only', CDNTAX_DELIVERY_PRINT_ONLY);
+      $delivery_options[] = $this->createElement('radio', null, null, 'Email or print', CDNTAX_DELIVERY_PRINT_EMAIL);
+      $delivery_options[] = $this->createElement('radio', null, null, 'Data only', CDNTAX_DELIVERY_DATA_ONLY);
       $this->addGroup($delivery_options, 'delivery_method', ts('Delivery Method', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->addRule('delivery_method', 'Delivery Method', 'required');
 
       $yesno_options = array();
-      $yesno_options[] = $this->createElement('radio', NULL, NULL, 'Yes', 1);
-      $yesno_options[] = $this->createElement('radio', NULL, NULL, 'No', 0);
+      $yesno_options[] = $this->createElement('radio', null, null, 'Yes', 1);
+      $yesno_options[] = $this->createElement('radio', null, null, 'No', 0);
       $this->addGroup($yesno_options, 'attach_to_workflows', ts('Attach receipts to automated workflow messages?', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->addRule('attach_to_workflows', 'Attach tax receipts to automated messages', 'required');
 
       $yesno_options2 = array();
-      $yesno_options2[] = $this->createElement('radio', NULL, NULL, 'Yes', 1);
-      $yesno_options2[] = $this->createElement('radio', NULL, NULL, 'No', 0);
+      $yesno_options2[] = $this->createElement('radio', null, null, 'Yes', 1);
+      $yesno_options2[] = $this->createElement('radio', null, null, 'No', 0);
       $this->addGroup($yesno_options2, 'enable_advanced_eligibility_report', ts('Enable Advanced Eligibility Check?', array('domain' => 'org.civicrm.cdntaxreceipts')));
     }
     else if ( $mode == 'defaults' ) {
       $defaults = array(
         'issue_inkind' => 0,
-        'delivery_method' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'delivery_method', NULL, CDNTAX_DELIVERY_PRINT_ONLY),
-        'attach_to_workflows' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'attach_to_workflows', NULL, 0),
-        'enable_advanced_eligibility_report' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'enable_advanced_eligibility_report', NULL, 0),
+        'delivery_method' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'delivery_method', null, CDNTAX_DELIVERY_PRINT_ONLY),
+        'attach_to_workflows' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'attach_to_workflows', null, 0),
+        'enable_advanced_eligibility_report' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'enable_advanced_eligibility_report', null, 0),
       );
       return $defaults;
     }
@@ -202,7 +202,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       CRM_Core_BAO_Setting::setItem($values['attach_to_workflows'], self::SETTINGS, 'attach_to_workflows');
       CRM_Core_BAO_Setting::setItem($values['enable_advanced_eligibility_report'], self::SETTINGS, 'enable_advanced_eligibility_report');
 
-      if (isset($values['issue_inkind']) == TRUE) {
+      if (isset($values['issue_inkind']) == true) {
         if ( $values['issue_inkind'] == 1 ) {
           cdntaxreceipts_configure_inkind_fields();
         }

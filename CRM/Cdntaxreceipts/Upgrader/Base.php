@@ -93,7 +93,7 @@ class CRM_Cdntaxreceipts_Upgrader_Base {
     require_once 'CRM/Utils/Migrate/Import.php';
     $import = new CRM_Utils_Migrate_Import();
     $import->run($xml_file);
-    return TRUE;
+    return true;
   }
 
   /**
@@ -107,7 +107,7 @@ class CRM_Cdntaxreceipts_Upgrader_Base {
       CIVICRM_DSN,
       $this->extensionDir . '/' . $relativePath
     );
-    return TRUE;
+    return true;
   }
 
   /**
@@ -120,7 +120,7 @@ class CRM_Cdntaxreceipts_Upgrader_Base {
   public function executeSql($query, $params = array()) {
     // FIXME verify that we raise an exception on error
     CRM_Core_DAO::executeSql($query, $params);
-    return TRUE;
+    return true;
   }
 
   /**
@@ -154,10 +154,10 @@ class CRM_Cdntaxreceipts_Upgrader_Base {
     $currentRevision = $this->getCurrentRevision();
 
     if (empty($revisions)) {
-      return FALSE;
+      return false;
     }
     if (empty($currentRevision)) {
-      return TRUE;
+      return true;
     }
 
     return ($currentRevision < max($revisions));
@@ -232,7 +232,7 @@ class CRM_Cdntaxreceipts_Upgrader_Base {
 
     $key = $this->extensionName . ':version';
     CRM_Core_BAO_Setting::setItem($revision, 'Extension', $key);
-    return TRUE;
+    return true;
   }
 
   // ******** Hook delegates ********
@@ -269,7 +269,7 @@ class CRM_Cdntaxreceipts_Upgrader_Base {
         CRM_Utils_File::sourceSQLFile(CIVICRM_DSN, $file);
       }
     }
-    $this->setCurrentRevision(NULL);
+    $this->setCurrentRevision(null);
   }
 
   public function onEnable() {
@@ -286,7 +286,7 @@ class CRM_Cdntaxreceipts_Upgrader_Base {
     }
   }
 
-  public function onUpgrade($op, CRM_Queue_Queue $queue = NULL) {
+  public function onUpgrade($op, CRM_Queue_Queue $queue = null) {
     switch($op) {
       case 'check':
         return array($this->hasPendingRevisions());

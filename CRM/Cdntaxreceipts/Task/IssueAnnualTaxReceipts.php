@@ -77,12 +77,12 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
     $this->assign('receiptTotal', $receiptTotal);
     $this->assign('receiptYears', $this->_years);
 
-    $delivery_method = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'delivery_method', NULL, CDNTAX_DELIVERY_PRINT_ONLY);
+    $delivery_method = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'delivery_method', null, CDNTAX_DELIVERY_PRINT_ONLY);
     $this->assign('deliveryMethod', $delivery_method);
 
     // add radio buttons
     foreach ( $this->_years as $year ) {
-      $this->addElement('radio', 'receipt_year', NULL, $year, 'issue_' . $year);
+      $this->addElement('radio', 'receipt_year', null, $year, 'issue_' . $year);
     }
     $this->addRule('receipt_year', ts('Selection required', array('domain' => 'org.civicrm.cdntaxreceipts')), 'required');
 
@@ -98,7 +98,7 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
       array(
         'type' => 'next',
         'name' => 'Issue Tax Receipts',
-        'isDefault' => TRUE,
+        'isDefault' => true,
         'js' => array('onclick' => "return submitOnce(this,'{$this->_name}','" . ts('Processing', array('domain' => 'org.civicrm.cdntaxreceipts')) . "');"),
       ),
     );
@@ -131,9 +131,9 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
       $year = substr($year, strlen('issue_')); // e.g. issue_2012
     }
 
-    $previewMode = FALSE;
+    $previewMode = false;
     if (isset($params['is_preview']) && $params['is_preview'] == 1 ) {
-      $previewMode = TRUE;
+      $previewMode = true;
     }
 
     /**

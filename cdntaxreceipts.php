@@ -22,7 +22,7 @@ function cdntaxreceipts_civicrm_buildForm( $formName, &$form ) {
         'type' => 'cancel',
         'name' => ts('Done'),
         'spacing' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-        'isDefault' => TRUE,
+        'isDefault' => true,
       )
     );
     $subName = 'view_tax_receipt';
@@ -38,7 +38,7 @@ function cdntaxreceipts_civicrm_buildForm( $formName, &$form ) {
         'type'      => 'submit',
         'subName'   => $subName,
         'name'      => ts('Tax Receipt', array('domain' => 'org.civicrm.cdntaxreceipts')),
-        'isDefault' => FALSE
+        'isDefault' => false
       );
       $form->addButtons($buttons);
     }
@@ -94,43 +94,43 @@ function cdntaxreceipts_civicrm_postProcess( $formName, &$form ) {
 
 function cdntaxreceipts_civicrm_searchTasks($objectType, &$tasks ) {
   if ( $objectType == 'contribution' && CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) {
-    $single_in_list = FALSE;
-    $aggregate_in_list = FALSE;
+    $single_in_list = false;
+    $aggregate_in_list = false;
     foreach ($tasks as $key => $task) {
       if($task['class'] == 'CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts') {
-        $single_in_list = TRUE;
+        $single_in_list = true;
       }
     }
     foreach ($tasks as $key => $task) {
       if($task['class'] == 'CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts') {
-        $aggregate_in_list = TRUE;
+        $aggregate_in_list = true;
       }
     }
     if (!$single_in_list) {
       $tasks[] = array (
         'title' => ts('Issue Tax Receipts (Separate Receipt for Each Contribution)', array('domain' => 'org.civicrm.cdntaxreceipts')),
         'class' => 'CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts',
-        'result' => TRUE);
+        'result' => true);
     }
     if (!$aggregate_in_list) {
       $tasks[] = array (
         'title' => ts('Issue Tax Receipts (Combined Receipt with Total Contributed)'),
         'class' => 'CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts',
-        'result' => TRUE);
+        'result' => true);
     }
   }
   elseif ( $objectType == 'contact' && CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) {
-    $annual_in_list = FALSE;
+    $annual_in_list = false;
     foreach ($tasks as $key => $task) {
       if($task['class'] == 'CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts') {
-        $annual_in_list = TRUE;
+        $annual_in_list = true;
       }
     }
     if (!$annual_in_list) {
       $tasks[] = array (
         'title' => ts('Issue Annual Tax Receipts'),
         'class' => 'CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts',
-        'result' => TRUE);
+        'result' => true);
     }
   }
 }
@@ -202,7 +202,7 @@ function cdntaxreceipts_civicrm_disable() {
  * @return mixed  based on op. for 'check', returns array(boolean) (TRUE if upgrades are pending)
  *                for 'enqueue', returns void
  */
-function cdntaxreceipts_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
+function cdntaxreceipts_civicrm_upgrade($op, CRM_Queue_Queue $queue = null) {
   return _cdntaxreceipts_civix_civicrm_upgrade($op, $queue);
 }
 
@@ -312,7 +312,7 @@ function cdntaxreceipts_civicrm_alterMailParams(&$params, $context) {
     }
 
     // is the extension configured to send receipts attached to automated workflows?
-    if (!CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'attach_to_workflows', NULL, FALSE)) {
+    if (!CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'attach_to_workflows', null, false)) {
       return;
     }
 
@@ -323,9 +323,9 @@ function cdntaxreceipts_civicrm_alterMailParams(&$params, $context) {
 
     $contribution = new CRM_Contribute_DAO_Contribution();
     $contribution->id = $contribution_id;
-    $contribution->find(TRUE);
+    $contribution->find(true);
 
-    $nullVar = NULL;
+    $nullVar = null;
     list($ret, $method, $pdf_file) = cdntaxreceipts_issueTaxReceipt(
       $contribution,
       $nullVar,

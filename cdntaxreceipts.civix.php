@@ -7,12 +7,12 @@
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config
  */
-function _cdntaxreceipts_civix_civicrm_config(&$config = NULL) {
-  static $configured = FALSE;
+function _cdntaxreceipts_civix_civicrm_config(&$config = null) {
+  static $configured = false;
   if ($configured) {
     return;
   }
-  $configured = TRUE;
+  $configured = true;
 
   $template =& CRM_Core_Smarty::singleton();
 
@@ -106,7 +106,7 @@ function _cdntaxreceipts_civix_civicrm_disable() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_upgrade
  */
-function _cdntaxreceipts_civix_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
+function _cdntaxreceipts_civix_civicrm_upgrade($op, CRM_Queue_Queue $queue = null) {
   if ($upgrader = _cdntaxreceipts_civix_upgrader()) {
     return $upgrader->onUpgrade($op, $queue);
   }
@@ -117,7 +117,7 @@ function _cdntaxreceipts_civix_civicrm_upgrade($op, CRM_Queue_Queue $queue = NUL
  */
 function _cdntaxreceipts_civix_upgrader() {
   if (!file_exists(__DIR__.'/CRM/Cdntaxreceipts/Upgrader.php')) {
-    return NULL;
+    return null;
   }
   else {
     return CRM_Cdntaxreceipts_Upgrader_Base::instance();
@@ -149,7 +149,7 @@ function _cdntaxreceipts_civix_find_files($dir, $pattern) {
       }
     }
     if ($dh = opendir($subdir)) {
-      while (FALSE !== ($entry = readdir($dh))) {
+      while (false !== ($entry = readdir($dh))) {
         $path = $subdir . DIRECTORY_SEPARATOR . $entry;
         if ($entry{0} == '.') {
         } elseif (is_dir($path)) {
@@ -260,7 +260,7 @@ function _cdntaxreceipts_civix_glob($pattern) {
  * @param array $item - menu you need to insert (parent/child attributes will be filled for you)
  * @param int $parentId - used internally to recurse in the menu structure
  */
-function _cdntaxreceipts_civix_insert_navigation_menu(&$menu, $path, $item, $parentId = NULL) {
+function _cdntaxreceipts_civix_insert_navigation_menu(&$menu, $path, $item, $parentId = null) {
   static $navId;
 
   // If we are done going down the path, insert menu
@@ -297,10 +297,10 @@ function _cdntaxreceipts_civix_insert_navigation_menu(&$menu, $path, $item, $par
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_alterSettingsFolders
  */
-function _cdntaxreceipts_civix_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
-  static $configured = FALSE;
+function _cdntaxreceipts_civix_civicrm_alterSettingsFolders(&$metaDataFolders = null) {
+  static $configured = false;
   if ($configured) return;
-  $configured = TRUE;
+  $configured = true;
 
   $settingsDir = __DIR__ . DIRECTORY_SEPARATOR . 'settings';
   if(is_dir($settingsDir) && !in_array($settingsDir, $metaDataFolders)) {

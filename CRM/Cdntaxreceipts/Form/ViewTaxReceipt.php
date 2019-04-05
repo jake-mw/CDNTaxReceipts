@@ -125,13 +125,13 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
       $buttons[] = array(
         'type' => 'next',
         'name' => $buttonLabel,
-        'isDefault' => TRUE,
+        'isDefault' => true,
       );
       if ($this->_reissue && !$this->_isCancelled) {
         $buttons[] = array(
           'type' => 'submit',
           'name' => ts('Cancel Tax Receipt', array('domain' => 'org.civicrm.cdntaxreceipts')),
-          'isDefault' => FALSE,
+          'isDefault' => false,
         );
       }
     }
@@ -175,7 +175,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
     $contribution =  new CRM_Contribute_DAO_Contribution();
     $contribution->id = $contributionId;
 
-    if ( ! $contribution->find( TRUE ) ) {
+    if ( ! $contribution->find( true ) ) {
       CRM_Core_Error::fatal( "CDNTaxReceipts: Could not retrieve details for this contribution" );
     }
 
@@ -189,7 +189,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
 
       $result = cdntaxreceipts_cancel($receipt_id);
 
-      if ($result == TRUE) {
+      if ($result == true) {
         $statusMsg = ts('Tax Receipt has been cancelled.', array('domain' => 'org.civicrm.cdntaxreceipts'));
       }
       else {
@@ -211,7 +211,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
 
         list($result, $method, $pdf) = cdntaxreceipts_issueTaxReceipt( $contribution );
 
-        if ($result == TRUE) {
+        if ($result == true) {
           if ($method == 'email') {
             $statusMsg = ts('Tax Receipt has been emailed to the contributor.', array('domain' => 'org.civicrm.cdntaxreceipts'));
           }

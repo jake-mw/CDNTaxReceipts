@@ -54,12 +54,12 @@ AND TABLE_NAME = 'cdntaxreceipts_log'
 AND COLUMN_NAME = 'receipt_status'");
        if($ndao->fetch()) {
          if ($ndao->col_count == 1) {
-           return TRUE;
+           return true;
          }
        }
      }
    }
-    return FALSE;
+    return false;
   }
 
   public function upgrade_1321() {
@@ -67,7 +67,7 @@ AND COLUMN_NAME = 'receipt_status'");
     CRM_Core_DAO::executeQuery('ALTER TABLE cdntaxreceipts_log ADD email_tracking_id varchar(64) NULL');
     CRM_Core_DAO::executeQuery('ALTER TABLE cdntaxreceipts_log ADD email_opened datetime NULL');
     CRM_Core_DAO::executeQuery('CREATE INDEX contribution_id ON cdntaxreceipts_log_contributions (contribution_id)');
-    return TRUE;
+    return true;
   } 
 
   public function upgrade_1322() {
@@ -86,7 +86,7 @@ AND COLUMN_NAME = 'receipt_status'");
     else {
       CRM_Core_BAO_Setting::setItem(0, CDNTAX_SETTINGS, 'delivery_method');
     }
-    return TRUE;
+    return true;
   }
 
 
@@ -175,7 +175,7 @@ AND COLUMN_NAME = 'receipt_status'");
     );
     civicrm_api3('MessageTemplate', 'create', $params);
 
-    return TRUE;
+    return true;
   }
 
   /**
