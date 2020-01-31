@@ -77,6 +77,19 @@ AND COLUMN_NAME = 'receipt_status'");
     return $this->_create_message_template($current_message, $current_subject);
   }
 
+  public function upgrade_1410() {
+    $this->ctx->log->info('Applying update 1410: Data mode');
+    $email_enabled = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'enable_email');
+    if ($email_enabled) {
+      CRM_Core_BAO_Setting::setItem(1, CDNTAX_SETTINGS, 'delivery_method');
+    }
+    else {
+      CRM_Core_BAO_Setting::setItem(0, CDNTAX_SETTINGS, 'delivery_method');
+    }
+    return TRUE;
+  }
+
+
   function _create_message_template($email_message, $email_subject) {
 
     $html_message = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

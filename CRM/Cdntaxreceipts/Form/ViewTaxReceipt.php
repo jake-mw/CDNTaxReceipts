@@ -64,7 +64,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
     }
 
     list($method, $email) = cdntaxreceipts_sendMethodForContact($contactId);
-    if ($this->_isCancelled == 1) {
+    if ($this->_isCancelled == 1 && $method != 'data') {
       $method = 'print';
     }
     $this->_method = $method;
@@ -126,7 +126,6 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
         'type' => 'next',
         'name' => $buttonLabel,
         'isDefault' => TRUE,
-        'js' => array('onclick' => "return submitOnce(this,'{$this->_name}','" . ts('Processing', array('domain' => 'org.civicrm.cdntaxreceipts')) . "');"),
       );
       if ($this->_reissue && !$this->_isCancelled) {
         $buttons[] = array(
@@ -216,8 +215,11 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
           if ($method == 'email') {
             $statusMsg = ts('Tax Receipt has been emailed to the contributor.', array('domain' => 'org.civicrm.cdntaxreceipts'));
           }
-          else {
+          else if ($method == 'print') {
             $statusMsg = ts('Tax Receipt has been generated for printing.', array('domain' => 'org.civicrm.cdntaxreceipts'));
+          }
+          else if ($method == 'data') {
+            $statusMsg = ts('Tax Receipt data is available in the Tax Receipts Issued report.', array('domain' => 'org.civicrm.cdntaxreceipts'));
           }
           CRM_Core_Session::setStatus($statusMsg, '', 'success');
         }

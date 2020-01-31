@@ -12,7 +12,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
 
   function __construct() {
 
-    $this->_customGroupExtends = array('Contact', 'Individual', 'Organization', 'Contribution');
+    $this->_customGroupExtends = array('Contact', 'Individual', 'Organization');
     $this->_autoIncludeIndexedFieldsAsOrderBys = TRUE;
 
     $this->_columns = array(
@@ -64,6 +64,12 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
           'receive_date' =>
           array(
             'operatorType' => CRM_Report_Form::OP_DATE),
+	  'contribution_source' =>
+	  array(
+	    'title' => ts('Contribution Source'),
+	    'operator' => 'like',
+	    'type' => CRM_Utils_Type::T_STRING,
+	  ),
           'financial_type_id' =>
           array('title' => ts('Financial Type', array('domain' => 'org.civicrm.cdntaxreceipts')),
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
@@ -174,7 +180,6 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
     else {
       $this->_where .= "
       AND {$this->_aliases['civicrm_contribution']}.contribution_status_id = 1
-      AND {$this->_aliases['civicrm_financial_type']}.is_deductible = 1
       AND ({$this->_aliases['civicrm_contribution']}.total_amount - COALESCE({$this->_aliases['civicrm_contribution']}.non_deductible_amount,0)) > 0
       ";
     }
@@ -216,6 +221,13 @@ CREATE TEMPORARY TABLE cdntaxreceipts_temp_civireport_eligible (
 
     $this->from(FALSE);
     $this->where(FALSE);
+
+    // if no receive_date filter, then limit to beginning of current month to prevent lock-up on large data sets
+    if (strpos($this->_where, 'receive_date') === FALSE) {
+      $month = date("Ym", time()) . '01';
+      $this->_where .= " AND {$this->_aliases['civicrm_contribution']}.receive_date >= {$month} ";
+      CRM_Core_Session::setStatus(ts('For performance reasons, date range is limited to the current month. If you want to a different date range, please use the date filter.'), '', 'info');
+    }
 
     $sql = "SELECT {$this->_aliases['civicrm_contribution']}.id $this->_from $this->_where";
     $dao = CRM_Core_DAO::executeQuery($sql);

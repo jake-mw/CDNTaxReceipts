@@ -57,6 +57,7 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
           'total_amount' => 0,
           'email' => array('contribution_count' => 0, 'receipt_count' => 0,),
           'print' => array('contribution_count' => 0, 'receipt_count' => 0,),
+          'data' => array('contribution_count' => 0, 'receipt_count' => 0,),
           'total_contacts' => 0,
           'total_eligible_amount' => 0,
           'not_eligible' => 0,
@@ -101,7 +102,7 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
         }
       }
       else {
-        $receipts['loading_errors']++;
+        $receipts['totals']['loading_errors']++;
       }
     }
 
@@ -131,6 +132,9 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
     $this->assign('receiptList', $this->_receipts);
     $this->assign('receiptYears', $this->_years);
 
+    $delivery_method = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'delivery_method', NULL, CDNTAX_DELIVERY_PRINT_ONLY);
+    $this->assign('deliveryMethod', $delivery_method);
+
     // add radio buttons
     // TODO: It might make sense to issue for multiple years here so switch to checkboxes
     foreach ( $this->_years as $year ) {
@@ -138,7 +142,9 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
     }
     $this->addRule('receipt_year', ts('Selection required', array('domain' => 'org.civicrm.cdntaxreceipts')), 'required');
 
-    $this->add('checkbox', 'is_preview', ts('Run in preview mode?', array('domain' => 'org.civicrm.cdntaxreceipts')));
+    if ($delivery_method != CDNTAX_DELIVERY_DATA_ONLY) {
+      $this->add('checkbox', 'is_preview', ts('Run in preview mode?', array('domain' => 'org.civicrm.cdntaxreceipts')));
+    }
 
     $buttons = array(
       array(
@@ -149,7 +155,7 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
         'type' => 'next',
         'name' => 'Issue Tax Receipts',
         'isDefault' => TRUE,
-        'js' => array('onclick' => "return submitOnce(this,'{$this->_name}','" . ts('Processing', array('domain' => 'org.civicrm.cdntaxreceipts')) . "');"),
+        'submitOnce' => TRUE,
       ),
     );
     $this->addButtons($buttons);
@@ -176,19 +182,6 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
       set_time_limit( 0 );
     }
 
-    // Issue 1895204: Turn off geocoding to avoid hitting Google API limits
-    if (version_compare(CRM_Utils_System::version(), '4.7', '<')) {
-      $config =& CRM_Core_Config::singleton();
-      $oldGeocode = $config->geocodeMethod;
-      unset($config->geocodeMethod);
-    }
-    else {
-      // TODO: test this works in 4.7. Does it affect the current request?
-      // better yet, figure out why Civi is triggering a geocode here, and stop it.
-      $oldGeocode = cdntaxreceipts_getCiviSetting('geoProvider');
-      cdntaxreceipts_setCiviSetting('geoProvider', NULL);
-    }
-
     $params = $this->controller->exportValues($this->_name);
     $year = $params['receipt_year'];
     if ( $year ) {
@@ -205,11 +198,13 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
 
     $emailCount = 0;
     $printCount = 0;
+    $dataCount = 0;
     $failCount = 0;
 
-    // TODO: Will need to change if multiple years allowed
     foreach ($this->_receipts['original'][$year]['contact_ids'] as $contact_id => $contribution_status) {
       if ( $emailCount + $printCount + $failCount >= self::MAX_RECEIPT_COUNT ) {
+        // limit email, print receipts as the pdf generation and email-to-archive consume
+        // server resources. don't limit data-type receipts.
         $status = ts('Maximum of %1 tax receipt(s) were sent. Please repeat to continue processing.',
           array(1=>self::MAX_RECEIPT_COUNT, 'domain' => 'org.civicrm.cdntaxreceipts'));
         CRM_Core_Session::setStatus($status, '', 'info');
@@ -229,8 +224,11 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
         elseif ( $method == 'email' ) {
           $emailCount++;
         }
-        else {
+        elseif ( $method == 'print' ) {
           $printCount++;
+        }
+        elseif ( $method == 'data' ) {
+          $dataCount++;
         }
       }
     }
@@ -241,25 +239,23 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
       CRM_Core_Session::setStatus($status, '', 'success');
     }
     else {
-      $status = ts('%1 tax receipt(s) were sent by email.', array(1=>$emailCount, 'domain' => 'org.civicrm.cdntaxreceipts'));
-      CRM_Core_Session::setStatus($status, '', 'success');
-      $status = ts('%1 tax receipt(s) need to be printed.', array(1=>$printCount, 'domain' => 'org.civicrm.cdntaxreceipts'));
-      CRM_Core_Session::setStatus($status, '', 'success');
+      if ($emailCount > 0) {
+        $status = ts('%1 tax receipt(s) were sent by email.', array(1=>$emailCount, 'domain' => 'org.civicrm.cdntaxreceipts'));
+        CRM_Core_Session::setStatus($status, '', 'success');
+      }
+      if ($printCount > 0) {
+        $status = ts('%1 tax receipt(s) need to be printed.', array(1=>$printCount, 'domain' => 'org.civicrm.cdntaxreceipts'));
+        CRM_Core_Session::setStatus($status, '', 'success');
+      }
+      if ($dataCount > 0) {
+        $status = ts('Data for %1 tax receipt(s) is available in the Tax Receipts Issued report.', array(1=>$dataCount, 'domain' => 'org.civicrm.cdntaxreceipts'));
+        CRM_Core_Session::setStatus($status, '', 'success');
+      }
     }
 
     if ( $failCount > 0 ) {
       $status = ts('%1 tax receipt(s) failed to process.', array(1=>$failCount, 'domain' => 'org.civicrm.cdntaxreceipts'));
       CRM_Core_Session::setStatus($status, '', 'error');
-    }
-
-
-    // Issue 1895204: Reset geocoding
-    if (version_compare(CRM_Utils_System::version(), '4.7', '<')) {
-      $config =& CRM_Core_Config::singleton();
-      $config->geocodeMethod = $oldGeocode;
-    }
-    else {
-      cdntaxreceipts_setCiviSetting('geoProvider', $oldGeocode);
     }
 
     // 4. send the collected PDF for download

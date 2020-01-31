@@ -120,9 +120,9 @@
           <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Checking this box will set up the fields required to generate in-kind tax receipts. Unchecking the box will not disable in-kind receipts: you will need to do that manually, by disabling the In-kind contribution type or making it non-deductible in the CiviCRM administration pages.{/ts}</p></td>
       </tr>
       <tr>
-        <td class="label">{$form.enable_email.label}</td>
-        <td class="content">{$form.enable_email.html}
-          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}If enabled, tax receipts will be sent via email to donors who have an email address on file. This setting applies to manually-triggered tax receipts, and is overridden if you decide to attach receipts to automated messages below.{/ts}</p></td>
+        <td class="label">{$form.delivery_method.label}</td>
+        <td class="content">{$form.delivery_method.html}
+          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Print only: all tax receipts are generated in PDF format.<br />Email or print: tax receipts are emailed if possible, otherwise generated in PDF format.<br />Data only: Tax receipts are generated internally in CiviCRM. Data can be exported for mail merge/mail house via the Tax Receipts Issued report.{/ts}</p></td>
       </tr>
       <tr>
         <td class="label">{$form.attach_to_workflows.label}</td>
@@ -132,7 +132,7 @@
       <tr>
         <td class="label">{$form.enable_advanced_eligibility_report.label}</td>
         <td class="content">{$form.enable_advanced_eligibility_report.html}
-          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}If enabled, the Receipts not issued Report will have the Advanced Eligibility Check enabled by default.{/ts}</p></td>
+          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}If enabled, the Receipts not issued Report will have the Advanced Eligibility Check enabled by default. Required for accurate reports, but can slow reports.{/ts}</p></td>
       </tr>
     </tbody>
   </table>

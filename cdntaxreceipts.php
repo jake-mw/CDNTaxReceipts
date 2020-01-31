@@ -142,7 +142,6 @@ function cdntaxreceipts_civicrm_permission( &$permissions ) {
   $prefix = ts('CiviCRM CDN Tax Receipts') . ': ';
   $permissions += array(
     'issue cdn tax receipts' => $prefix . ts('Issue Tax Receipts', array('domain' => 'org.civicrm.cdntaxreceipts')),
-    'track cdn tax receipts' => $prefix . ts('Open Tracking', array('domain' => 'org.civicrm.cdntaxreceipts')),
   );
 }
 
@@ -281,6 +280,18 @@ function cdntaxreceipts_civicrm_validate( $formName, &$fields, &$files, &$form )
 }
 
 function cdntaxreceipts_civicrm_alterMailParams(&$params, $context) {
+  /*
+    When CiviCRM core sends receipt email using CRM_Core_BAO_MessageTemplate, this hook was invoked twice:
+    - once in CRM_Core_BAO_MessageTemplate::sendTemplate(), context "messageTemplate"
+    - once in CRM_Utils_Mail::send(), which is called by CRM_Core_BAO_MessageTemplate::sendTemplate(), context "singleEmail"
+
+    Hence, cdntaxreceipts_issueTaxReceipt() is called twice, sending 2 receipts to archive email.
+
+    To avoid this, only execute this hook when context is "messageTemplate"
+  */
+  if( $context != 'messageTemplate'){
+    return;
+  }
 
   $msg_template_types = array('contribution_online_receipt', 'contribution_offline_receipt');
 
