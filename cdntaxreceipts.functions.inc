@@ -52,7 +52,6 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
 
   // Get contact details
   list($displayname, $email) = CRM_Contact_BAO_Contact::getContactDetails($receipt['contact_id']);
-  $displayname = cdntaxreceipts_getDonorName($receipt['contact_id']);
 
   // add support for preferred language
   $old_locale = CRM_Core_I18n::singleton()->getLocale();

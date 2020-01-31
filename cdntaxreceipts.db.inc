@@ -347,7 +347,6 @@ WHERE email_tracking_id = %1 AND email_opened IS NULL";
  * Assumes that this table has an autoincrement id field.
  * Does not deal with locking issue.
  */
-
 function cdntaxreceipts_log_next_id() {
   $sql = "SELECT id FROM cdntaxreceipts_log ORDER BY id DESC LIMIT 1";
   $last_id = CRM_Core_DAO::singleValueQuery($sql);
