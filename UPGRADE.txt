@@ -1,3 +1,8 @@
+Upgrading from v1.3.1 to v1.3.2
+-------------------------------
+
+There are no schema changes. Just replace the whole extension directory with a new copy of the extension directory. Then clear out your compiled templates directory under templates_c either manually or at Administer > System Settings > Cleanup Caches and Update Paths, then click Cleanup Caches.
+
 Upgrading from the Drupal module
 ---------------------------------------
 Right now there is no automated upgrade process. Here are the steps to to this manually.
