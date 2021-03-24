@@ -44,6 +44,11 @@
         <td class="content">{$form.org_charitable_no.html}
           <p class="description">10000-000-RR0000</p></td>
       </tr>
+      <tr>
+        <td class="label">{$form.org_location_issued.label}</td>
+        <td class="content">{$form.org_location_issued.html}
+          <p class="description">City, town, or municipality</p></td>
+      </tr>
     </tbody>
   </table>
 

@@ -59,6 +59,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $this->add('text', 'org_email', ts('Email', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->add('text', 'org_web', ts('Website', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->add('text', 'org_charitable_no', ts('Charitable Registration Number', array('domain' => 'org.civicrm.cdntaxreceipts')));
+      $this->add('text', 'org_location_issued', ts('Location Issued', array('domain' => 'org.civicrm.cdntaxreceipts')));
 
       $this->addRule('org_name', 'Enter Organization Name', 'required');
       $this->addRule('org_address_line1', 'Enter Address Line 1', 'required');
@@ -82,6 +83,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
         'receipt_watermark' => Civi::settings()->get('receipt_watermark'),
         'receipt_pdftemplate' => Civi::settings()->get('receipt_pdftemplate'),
         'org_charitable_no' => Civi::settings()->get('org_charitable_no'),
+        'org_location_issued' => Civi::settings()->get('org_location_issued'),
       );
       return $defaults;
     }
@@ -95,6 +97,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       Civi::settings()->set('org_email', $values['org_email']);
       Civi::settings()->set('org_web', $values['org_web']);
       Civi::settings()->set('org_charitable_no', $values['org_charitable_no']);
+      Civi::settings()->set('org_location_issued', $values['org_location_issued']);
     }
 
   }
