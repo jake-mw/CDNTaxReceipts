@@ -1,6 +1,16 @@
 <?php
 
-require_once 'tcpdf/tcpdf.php';
+// A require statement doesn't work on drupal 8 because civi purposely
+// specifies the include_path to tecknicom in its composer.json in order
+// to have backwards compatibility with extensions that use require
+// statements in other CMS's, but then this breaks in drupal 8 because
+// it doesn't get the include_path right. So force a load via autoloader.
+// The reason we need to do this at all is because when we require FPDI
+// below it assumes TCPDF is already loaded when it tries to figure out
+// which PDF library to use.
+// Aside: FPDI is out of date and it seems like they want you to use
+// composer.
+class_exists('TCPDF', TRUE);
 require_once('FPDI/fpdi.php');
 
   class PDF extends FPDI {
@@ -13,11 +23,10 @@ require_once('FPDI/fpdi.php');
      * include a background template for every page
      */
     function Header() {
-      $pdf_template_file = Civi::settings()->get('receipt_pdftemplate');
+      $pdf_template_file = _cdntaxreceipts_get_image_filepath('receipt_pdftemplate');
       if (!empty($pdf_template_file)) {
 
         if (is_null($this->_tplIdx)) {
-          $pdf_template_file = Civi::settings()->get('receipt_pdftemplate');
           $this->setSourceFile($pdf_template_file);
           $this->_tplIdx = $this->importPage(1);
         }
@@ -58,6 +67,7 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
   $preferred_language = CRM_Core_DAO::getFieldValue('CRM_Contact_DAO_Contact', $receipt['contact_id'], 'preferred_language');
   _cdntaxreceipts_setReceiptanguage($preferred_language);
 
+  // @todo Deprecate this function - see issue 103. This used to be on the settings form but has been removed. For now if it had been previously set we still use the same (broken) implementation from before.
   $serial_receipt = Civi::settings()->get('receipt_serial');
   if ($serial_receipt && empty($receipt['is_duplicate'])) {
     // use my experimental alternative to generating serial receipt numbers, unless this is a re-issue
@@ -75,7 +85,7 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
   //   modules should accept a reference to the $receipt array and alter it directly if they wish
   //   one useful use case: alter the $receipt['source'] line to include custom text
   //   to alter receipt amount, use hook_cdntaxreceipts_eligibleAmount() instead
-  CRM_Utils_Hook::singleton()->invoke(1, $receipt, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_alter_receipt');
+  CRM_Utils_Hook::singleton()->invoke(['receipt'], $receipt, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_alter_receipt');
 
   if ($receipt['issue_method'] == 'data') {
     // generate log entry only, no PDF file needed
@@ -181,8 +191,6 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
  */
 function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL, $mode) {
 
-  require_once 'tcpdf/tcpdf.php';
-
   $pdf_img_files_path = dirname(__FILE__) . '/img/';
 
   $address = cdntaxreceipts_getAddress($receipt['contact_id']);
@@ -237,8 +245,8 @@ function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL
   $pdf_file = $config->uploadDir . 'Receipt-' . $receipt['receipt_no'] . '.pdf';
   $user_friendly = 'Receipt-' . $receipt['receipt_no'] . '.pdf';
 
-  if (!defined('pdf_page_format')) {
-    define('PDF_PAGE_FORMAT', 'USLETTER', true); // orig: 'A4'
+  if (!defined('PDF_PAGE_FORMAT')) {
+    define('PDF_PAGE_FORMAT', 'USLETTER'); // orig: 'A4'
   }
   $pdf = new PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, 'LETTER', TRUE, 'UTF-8', FALSE);
   $pdf->Open();
@@ -309,7 +317,7 @@ function _cdntaxreceipts_writePage(&$f, $pdf_variables, $receipt) {
   // this when testing their particular installs.
   //
 
-  $results = CRM_Utils_Hook::singleton()->invoke(3, $f, $pdf_variables, $receipt, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_writeReceipt');
+  $results = CRM_Utils_Hook::singleton()->invoke(['f', 'pdf_variables', 'receipt'], $f, $pdf_variables, $receipt, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_writeReceipt');
 
   if (is_array($results)) {
     foreach ($results as $result) {
@@ -373,62 +381,65 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
     $pdf->Image($pdf_img_files_path . 'duplicate_trans.png', $mymargin_left + 65, $mymargin_top, '', 45);
   }
   // Top left section
-  $pdf_template_file = Civi::settings()->get('receipt_pdftemplate');
-  if (!empty($pdf_template_file)) {
-  }
-  else {
-    $receipt_logo = Civi::settings()->get('receipt_logo');
+  $pdf_template_file = _cdntaxreceipts_get_image_filepath('receipt_pdftemplate');
+  if (empty($pdf_template_file)) {
+    $receipt_logo = _cdntaxreceipts_get_image_filepath('receipt_logo');
     if ( empty($receipt_logo) ) {
       $receipt_logo = $pdf_img_files_path . 'your-logo.png';
     }
     $pdf->Image($receipt_logo, $mymargin_left, $mymargin_top, '', 30);
 
-  // Top right section
-  $pdf->SetFont('Helvetica', '', 8);
-  $pdf->SetY($mymargin_top);
-  $pdf->Write(10, Civi::settings()->get('org_name'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->SetY($mymargin_top + 4);
-  $pdf->Write(10, Civi::settings()->get('org_address_line1'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->SetY($mymargin_top + 8);
-  $pdf->Write(10, Civi::settings()->get('org_address_line2'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->SetY($mymargin_top + 12);
+    // Top right section
+    $pdf->SetFont('Helvetica', '', 8);
+    $pdf->SetY($mymargin_top);
+    $pdf->Write(10, Civi::settings()->get('org_name'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetY($mymargin_top + 4);
+    $pdf->Write(10, Civi::settings()->get('org_address_line1'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetY($mymargin_top + 8);
+    $pdf->Write(10, Civi::settings()->get('org_address_line2'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetY($mymargin_top + 12);
 
-  $telTxt = ts('Tel: %1', array(1 => Civi::settings()->get('org_tel'), 'domain' => 'org.civicrm.cdntaxreceipts'));
-  if ( Civi::settings()->get('org_fax' ) != '' ) {
-    $telTxt .= '; ' . ts('Fax: %1', array(1 => Civi::settings()->get('org_fax'), 'domain' => 'org.civicrm.cdntaxreceipts'));
-  }
-  $pdf->Write(10, $telTxt, '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->SetFont('Helvetica', 'I', 8);
-  $pdf->SetY($mymargin_top + 16);
+    $telTxt = ts('Tel: %1', array(1 => Civi::settings()->get('org_tel'), 'domain' => 'org.civicrm.cdntaxreceipts'));
+    if ( Civi::settings()->get('org_fax' ) != '' ) {
+      $telTxt .= '; ' . ts('Fax: %1', array(1 => Civi::settings()->get('org_fax'), 'domain' => 'org.civicrm.cdntaxreceipts'));
+    }
+    $pdf->Write(10, $telTxt, '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetFont('Helvetica', 'I', 8);
+    $pdf->SetY($mymargin_top + 16);
 
-  $emailTxt = ts('Email: %1; Website: %2', array(
-    1 => Civi::settings()->get('org_email'),
-    2 => Civi::settings()->get('org_web'),
-    'domain' => 'org.civicrm.cdntaxreceipts')
-  );
-  $registrationTxt = ts('Charitable Registration: %1', array(1 => Civi::settings()->get('org_charitable_no'), 'domain' => 'org.civicrm.cdntaxreceipts'));
+    $emailTxt = ts('Email: %1; Website: %2', array(
+      1 => Civi::settings()->get('org_email'),
+      2 => Civi::settings()->get('org_web'),
+      'domain' => 'org.civicrm.cdntaxreceipts')
+    );
+    $registrationTxt = ts('Charitable Registration: %1', array(1 => Civi::settings()->get('org_charitable_no'), 'domain' => 'org.civicrm.cdntaxreceipts'));
 
-  $pdf->Write(10, $emailTxt, '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->SetY($mymargin_top + 20);
-  $pdf->Write(10, $registrationTxt, '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->Write(10, $emailTxt, '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetY($mymargin_top + 20);
+    $pdf->Write(10, $registrationTxt, '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
   }
 
   // Right section
   $x_detailscolumn = 120;
   $y_detailscolumnstart = 22;
-  $pdf_template_file = Civi::settings()->get('receipt_pdftemplate');
-  if (!empty($pdf_template_file)) {
-  }
-  else {
-    $background_image = Civi::settings()->get('receipt_watermark');
-    if ( $background_image ) $pdf->Image(Civi::settings()->get('receipt_watermark'), $mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 6, '', 40);
+  $pdf_template_file = _cdntaxreceipts_get_image_filepath('receipt_pdftemplate');
+  if (empty($pdf_template_file)) {
+    $background_image = _cdntaxreceipts_get_image_filepath('receipt_watermark');
+    if ($background_image) {
+      $pdf->Image($background_image, $mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 6, '', 40);
+    }
   }
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 6);
   $pdf->SetFont('Helvetica', 'B', 8);
   $pdf->Write(10, ts("Issue Date: %1", array(1 => $issued_on, 'domain' => 'org.civicrm.cdntaxreceipts')));
-  $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 12);
+  $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 10);
   $pdf->Write(10, ts("Received on: %1", array(1 => $display_date, 'domain' => 'org.civicrm.cdntaxreceipts')));
-  $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 18);
+  $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 14);
+  $location_issued = trim(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_location_issued'));
+  if ($location_issued) {
+    $pdf->Write(10, "Location receipt issued: " . $location_issued);
+    $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 18);
+  }
   $pdf->Write(10, ts("Eligible Amount:  $%1", array(1 => number_format($amount, 2), 'domain' => 'org.civicrm.cdntaxreceipts')));
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 34);
 
@@ -543,9 +554,7 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
       $signature = ts('Authorized Signature', array('domain' => 'org.civicrm.cdntaxreceipts'));
     }
     $sig_offset = strlen($signature) - 20;
-    $pdf_template_file = Civi::settings()->get('receipt_pdftemplate');
-
-    $sig_image = Civi::settings()->get('receipt_signature');
+    $sig_image = _cdntaxreceipts_get_image_filepath('receipt_signature');
     if (empty($sig_image)) {
       $sig_image = $pdf_img_files_path . 'authorized-signature.png';
     }
@@ -603,7 +612,7 @@ function cdntaxreceipts_configure_inkind_fields() {
       'is_active' => 1,
       'version' => 3
     );
-    $result =& civicrm_api('custom_group', 'create', $group);
+    $result = civicrm_api('custom_group', 'create', $group);
   }
   foreach ( $result['values'] as $id => $detail ) {
     $custom_group_id = $id;
@@ -611,17 +620,11 @@ function cdntaxreceipts_configure_inkind_fields() {
 
   // check if the custom fields exist.  if not, create them.
   foreach ( array( 'Description of property', 'Appraised by', 'Address of Appraiser', 'Original cost' ) as $field ) {
-    $params = array(
-      'custom_group_id' => $custom_group_id,
-      'label' => $field,
-      'version' => 3,
-    );
-    $result = civicrm_api( 'custom_field', 'get', $params);
-
-    if ( $result['count'] == 0 ) {
+    if (!_cdntaxreceipts_custom_field_exists($custom_group_id, $field)) {
       $field_params = array(
         'custom_group_id' => $custom_group_id,
         'label' => $field,
+        'name' => CRM_Utils_String::munge($field, '_', 64),
         'data_type' => 'String',
         'html_type' => 'Text',
         'is_required' => 1,
@@ -638,7 +641,7 @@ function cdntaxreceipts_configure_inkind_fields() {
           ' the cost of the item donated (and the creditable amount) if either of those '.
           ' situations apply.';
       }
-      $result =& civicrm_api('custom_field', 'create', $field_params);
+      civicrm_api('custom_field', 'create', $field_params);
     }
   }
 }
@@ -815,7 +818,7 @@ function cdntaxreceipts_eligibleForReceipt( $contributionId ) {
   //   module implementations should return an array containing a single item,
   //   either TRUE or FALSE. assumes TRUE until we receive a FALSE. one FALSE
   //   disqualifies the contribution for a tax receipt.
-  $results = CRM_Utils_Hook::singleton()->invoke(1, $contribution, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_eligible');
+  $results = CRM_Utils_Hook::singleton()->invoke(['contribution'], $contribution, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_eligible');
   $hookOk = TRUE;
 
   if (is_array($results)) {
@@ -890,7 +893,7 @@ function cdntaxreceipts_eligibleAmount( $contributionId ) {
   }
 
   // 2. allow modules to alter the amount. lowest amount wins.
-  $results = CRM_Utils_Hook::singleton()->invoke(1, $contribution, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_eligibleAmount');
+  $results = CRM_Utils_Hook::singleton()->invoke(['contribution'], $contribution, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_eligibleAmount');
 
   if (is_array($results)) {
     foreach ( $results as $result ) {
@@ -1109,7 +1112,7 @@ function cdntaxreceipts_sendMethodForContact( $contactId ) {
   //   module implementations should return an array containing a single item,
   //   either 'email' or 'print'. if we receive one or more 'print', the contact
   //   is disqualified from receiving email receipts.
-  $results = CRM_Utils_Hook::singleton()->invoke(1, $contactId, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_method');
+  $results = CRM_Utils_Hook::singleton()->invoke(['contactId'], $contactId, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_method');
 
   if (is_array($results)) {
     foreach ( $results as $result ) {
@@ -1141,7 +1144,6 @@ function cdntaxreceipts_openCollectedPDF() {
 
   if ( ! isset($pdf) ) {
     //define ('K_PATH_IMAGES', '');
-    require_once 'tcpdf/tcpdf.php';
 
     $pdf = new PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, 'LETTER', TRUE, 'UTF-8', FALSE);
     $pdf->Open();
@@ -1331,4 +1333,46 @@ function _cdntaxreceipts_setReceiptanguage($language) {
   $i18n = CRM_Core_I18n::singleton();
   $i18n->setLocale($language);
 
+}
+
+/**
+ * Get file name with path of file/image field.
+ *
+ * @param string $imageSettingName
+ *
+ * @return string file path or NULL
+ */
+function _cdntaxreceipts_get_image_filepath($imageSettingName) {
+  $fileName = Civi::settings()->get($imageSettingName);
+  if ($fileName) {
+    $fileNameWithPath = CRM_Core_Config::singleton()->customFileUploadDir . $fileName;
+    if (file_exists($fileNameWithPath)) {
+      return $fileNameWithPath;
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Check if a custom field exists given only the `label`, but we want to
+ * check `name` first, then fall back to `label`.
+ * Being a little bit paranoid but it's not clear if it's possible that a
+ * really old install might have had the `name` generated differently than
+ * the way core currently does it, since we never used to set the `name`
+ * ourselves, so that's why we fall back to `label`.
+ *
+ * @param int $custom_group_id
+ * @param string $field_label
+ * @return bool
+ */
+function _cdntaxreceipts_custom_field_exists($custom_group_id, $field_label) {
+  $params = array(
+    'custom_group_id' => $custom_group_id,
+    'name' => CRM_Utils_String::munge($field_label, '_', 64),
+    'label' => $field_label,
+    'options' => array('or' => array(array('name', 'label'))),
+    'version' => 3,
+  );
+  $result = civicrm_api('custom_field', 'get', $params);
+  return ($result['count'] != 0);
 }

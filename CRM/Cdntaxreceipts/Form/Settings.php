@@ -38,9 +38,9 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
     // Set image defaults
     $images = array('receipt_logo', 'receipt_signature', 'receipt_watermark', 'receipt_pdftemplate');
     foreach ($images as $image) {
-      if (CRM_Utils_Array::value($image, $defaults)) {
+      if (!empty($defaults[$image])) {
         $this->assign($image, $defaults[$image]);
-        if (!file_exists($defaults[$image])) {
+        if (!file_exists(CRM_Core_Config::singleton()->customFileUploadDir . $defaults[$image])) {
           $this->assign($image.'_class', TRUE);
         }
       }
@@ -59,6 +59,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $this->add('text', 'org_email', ts('Email', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->add('text', 'org_web', ts('Website', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->add('text', 'org_charitable_no', ts('Charitable Registration Number', array('domain' => 'org.civicrm.cdntaxreceipts')));
+      $this->add('text', 'org_location_issued', ts('Location Issued', array('domain' => 'org.civicrm.cdntaxreceipts')));
 
       $this->addRule('org_name', 'Enter Organization Name', 'required');
       $this->addRule('org_address_line1', 'Enter Address Line 1', 'required');
@@ -82,6 +83,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
         'receipt_watermark' => Civi::settings()->get('receipt_watermark'),
         'receipt_pdftemplate' => Civi::settings()->get('receipt_pdftemplate'),
         'org_charitable_no' => Civi::settings()->get('org_charitable_no'),
+        'org_location_issued' => Civi::settings()->get('org_location_issued'),
       );
       return $defaults;
     }
@@ -95,6 +97,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       Civi::settings()->set('org_email', $values['org_email']);
       Civi::settings()->set('org_web', $values['org_web']);
       Civi::settings()->set('org_charitable_no', $values['org_charitable_no']);
+      Civi::settings()->set('org_location_issued', $values['org_location_issued']);
     }
 
   }
@@ -102,7 +105,6 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
   function processReceiptOptions($mode) {
     if ( $mode == 'build' ) {
       $this->add('text', 'receipt_prefix', ts('Receipt Prefix', array('domain' => 'org.civicrm.cdntaxreceipts')));
-      $this->add('checkbox', 'receipt_serial', ts('Serial Receipt Numbers', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->add('text', 'receipt_authorized_signature_text', ts('Authorized Signature Text', array('domain' => 'org.civicrm.cdntaxreceipts')));
 
       $uploadSize = cdntaxreceipts_getCiviSetting('maxFileSize');
@@ -133,7 +135,6 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
     else if ( $mode == 'defaults' ) {
       $defaults = array(
         'receipt_prefix' => Civi::settings()->get('receipt_prefix'),
-        'receipt_serial' => Civi::settings()->get('receipt_serial'),
         'receipt_authorized_signature_text' => Civi::settings()->get('receipt_authorized_signature_text'),
       );
       return $defaults;
@@ -141,20 +142,14 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
     else if ( $mode == 'post' ) {
       $values = $this->exportValues();
       Civi::settings()->set('receipt_prefix', $values['receipt_prefix']);
-      Civi::settings()->set('receipt_serial', $values['receipt_serial'] ?? 0);
       Civi::settings()->set('receipt_authorized_signature_text', $values['receipt_authorized_signature_text']);
-      $receipt_logo = $this->getSubmitValue('receipt_logo');
-      $receipt_signature = $this->getSubmitValue('receipt_signature');
-      $receipt_watermark = $this->getSubmitValue('receipt_watermark');
-      $receipt_pdftemplate = $this->getSubmitValue('receipt_pdftemplate');
 
-      $config = CRM_Core_Config::singleton( );
       foreach ( array('receipt_logo', 'receipt_signature', 'receipt_watermark', 'receipt_pdftemplate') as $key ) {
         $upload_file = $this->getSubmitValue($key);
         if (is_array($upload_file)) {
           if ( $upload_file['error'] == 0 ) {
-            $filename = $config->customFileUploadDir . CRM_Utils_File::makeFileName($upload_file['name']);
-            if (!move_uploaded_file($upload_file['tmp_name'], $filename)) {
+            $filename = CRM_Utils_File::makeFileName($upload_file['name']);
+            if (!move_uploaded_file($upload_file['tmp_name'], CRM_Core_Config::singleton()->customFileUploadDir . $filename)) {
               CRM_Core_Error::fatal(ts('Could not upload the file'));
             }
             Civi::settings()->set($key, $filename);

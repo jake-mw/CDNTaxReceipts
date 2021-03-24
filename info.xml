@@ -9,21 +9,21 @@
   </description>
   <license>AGPL</license>
   <maintainer>
-    <author>Karin Gerritsen and Jake Martin White</author>
+    <author>KarinG and DaveD</author>
     <email>frontdesk@semper-it.com</email>
   </maintainer>
-  <releaseDate>2020-02-04</releaseDate>
-  <version>1.5.1</version>
+  <releaseDate>2021-03-13</releaseDate>
+  <version>1.6.0</version>
   <develStage>stable</develStage>
   <compatibility>
-    <ver>5.12</ver>
+    <ver>5.33</ver>
   </compatibility>
   <urls>
-    <url desc="documentation">https://github.com/jake-mw/CDNTaxReceipts/blob/master/README.md</url>
-    <url desc="Support">https://github.com/jake-mw/CDNTaxReceipts/issues?state=open</url>
+    <url desc="documentation">https://lab.civicrm.org/extensions/cdntaxreceipts/blob/master/README.md</url>
+    <url desc="Support">https://lab.civicrm.org/extensions/cdntaxreceipts/-/issues</url>
   </urls>
   <comments>
-      Developed as a collaboration between Karin Gerritsen (semper-it.com), Lola Slade (freeform.ca),
+      Originally developed as a collaboration between Karin Gerritsen (semper-it.com), Lola Slade (freeform.ca),
       Alan Dixon (blackflysolutions.ca) and Jake Martin White (mustardseednonprofit.ca)
   </comments>
   <civix>

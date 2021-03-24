@@ -44,6 +44,11 @@
         <td class="content">{$form.org_charitable_no.html}
           <p class="description">10000-000-RR0000</p></td>
       </tr>
+      <tr>
+        <td class="label">{$form.org_location_issued.label}</td>
+        <td class="content">{$form.org_location_issued.html}
+          <p class="description">City, town, or municipality</p></td>
+      </tr>
     </tbody>
   </table>
 
@@ -55,11 +60,6 @@
         <td class="label">{$form.receipt_prefix.label}</td>
         <td class="content">{$form.receipt_prefix.html}
           <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Receipt numbers are formed by appending the CiviCRM Contribution ID to this prefix. Receipt numbers must be unique within your organization. If you also issue tax receipts using another system, you can use the prefix to ensure uniqueness (e.g. enter 'WEB-' here so all receipts issued through CiviCRM are WEB-00000001, WEB-00000002, etc.){/ts}</p></td>
-      </tr>
-      <tr>
-        <td class="label">{$form.receipt_serial.label}</td>
-        <td class="content">{$form.receipt_serial.html}
-          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}This is an experimental option to generate receipt numbers serially, without the gaps of the default method described above. Not recommended unless your auditor insists.{/ts}</p></td>
       </tr>
       <tr>
         <td class="label">{$form.receipt_authorized_signature_text.label}</td>

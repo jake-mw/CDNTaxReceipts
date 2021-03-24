@@ -20,10 +20,12 @@ To set up the extension:
 2. Make sure your CiviCRM Extensions Resource URL is set (Administer > System Settings > Resource URLs).
 3. Unpack the code
     - cd extensions directory
-    - git clone https://github.com/jake-mw/CDNTaxReceipts.git org.civicrm.cdntaxreceipts
+    - git clone https://lab.civicrm.org/extensions/cdntaxreceipts.git org.civicrm.cdntaxreceipts
 4. Enable the extension at Administer > System Settings > Manage Extensions
 5. Configure CDN Tax Receipts at Administer > CiviContribute > CDN Tax Receipts. (Take note of the dimensions for each of the image parameters. Correct sizing is important. You might need to try a few times to get it right.)
 6. Review permissions: The extension has added a new permission called "CiviCRM CDN Tax Receipts: Issue Tax Receipts".
+
+Note: if you are installing this on Drupal 8 or Drupal 9 -> remember clear the Drupal cache or you may not be able to get to the CiviCRM CDNTaxReceipts settings screen.
 
 Now you should be able to use the module.
 
